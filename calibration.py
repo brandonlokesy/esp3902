@@ -1,8 +1,11 @@
 import cv2
 import numpy as np
 
-framewidth = 640
-frameheight = 400
+# framewidth = 640
+# frameheight = 400
+
+framewidth = 1920
+frameheight = 1080
 
 cap = cv2.VideoCapture(0)
 if (cap.isOpened()== False): 
@@ -24,6 +27,7 @@ def empty(a):
 
 while True:
     ret, frame = cap.read()
+    print(frame.shape)
     if ret == True:
         # frameHSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
