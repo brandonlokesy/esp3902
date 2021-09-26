@@ -12,17 +12,19 @@ from sklearn.metrics.pairwise import euclidean_distances
 Lego Colours are taken from here:
 https://brickipedia.fandom.com/wiki/Medium_Blue'''
 
-legoColoursHEX = {"brightRed" : "#DE000D", 
-                    "brightBlue" : "#0057A8", 
-                    "darkGreen" : "#007B28",
-                    "mediumBlue" : "#478CC6",
-                    "brightYellow" : "#FEC400",
-                    #"lightPurple" : "#E4ADC8",
-                    "brightYellowishGreen" : "#95B90B",
-                    "brightLightOrange" : "#F8BB3D",
-                    "darkPurple" : "#2C1577",
-                    "black" : "#010101",
-                    "mediumAzure" : "#36AEBF"}
+legoColoursHEX = {
+    "brightRed" : "#DE000D", 
+    "brightBlue" : "#0057A8", 
+    "darkGreen" : "#007B28",
+    # "mediumBlue" : "#478CC6",
+    "brightYellow" : "#FEC400"
+    #"lightPurple" : "#E4ADC8",
+    # "brightYellowishGreen" : "#95B90B",
+    # "brightLightOrange" : "#F8BB3D",
+    # "darkPurple" : "#2C1577",
+    # "black" : "#010101",
+    # "mediumAzure" : "#36AEBF"
+                    }
 
 colourLocations = {"brightRed" : (100, 100, 100),
                     "brightBlue" : (200, 200, 100),

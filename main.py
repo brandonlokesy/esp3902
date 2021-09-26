@@ -6,9 +6,10 @@ from legobrick import Lego
 from pydexarm import Dexarm
 import time
 import math
+import coordinatestransformation as ct
 
-framewidth = 640
-frameheight = 480
+framewidth = 1920
+frameheight = 1080
 
 
 # cap = cv2.VideoCapture(0)
@@ -44,7 +45,8 @@ dexarm.move_rail(0)
 def getContours(img, imgContours):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     # cv2.drawContours(imgContours, contours, -1, (150, 0, 150), 3)
-    return contours
+    sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
+    return (sorted_contours[0],)
 
 
 def pick_lego(lego):
@@ -55,17 +57,21 @@ def pick_lego(lego):
         print("Picking up Lego")
         x,y = lego.get_xy()
         colour = lego.get_colour()
-        dexarm.move_to((x,y, -75))
-        dexarm.soft_gripper_pick()
-        dexarm.move_to((x,y,0))
-        dexarm.move_rail(extrude = 400)
-        # dexarm.move_to(cc.colourBucket(colour))
-        dexarm.move_to((200, 100, 0))
-        dexarm.soft_gripper_place()
-        dexarm.move_rail(0)
-        dexarm.go_home()
-        lego.deactivate()
-        pass
+        dexarm.fast_move_to((x,y, 20), feedrate = 10000)
+        dexarm.fast_move_to((x,y, -32), feedrate = 10000)
+        if dexarm.get_current_position()[:2] == (cXmm, cYmm):
+            dexarm.soft_gripper_pick()
+            dexarm.fast_move_to((x,y,30), feedrate = 10000)
+            dexarm.move_rail(extrude = 400, feedrate = 5000)
+            # dexarm.move_to(cc.colourBucket(colour))
+            dexarm.fast_move_to((200, 100, 0), feedrate = 5000)
+            dexarm.soft_gripper_place()
+            dexarm.move_rail(extrude = 0, feedrate = 5000)
+            # dexarm.go_home()
+            dexarm.fast_move_to((0, 200, 30), feedrate = 10000)
+            # dexarm.soft_gripper_nature()
+            lego.deactivate()
+            pass
 
 def rotrics_track(lego):
     if lego.active == False:
@@ -75,7 +81,7 @@ def rotrics_track(lego):
         # print("Tracking Lego")
         x,y = lego.get_xy()
         print(x,y)
-        dexarm.move_to((x,y, -60))
+        dexarm.move_to((x,y, -10))
         # time.sleep(10)
         pass
 
@@ -126,14 +132,15 @@ while True:
 
             # print(cX, cY)
             pixel = img[cY, cX, :]
-            cYcm = cY * cm2pixel
-            cXcm = cX * cm2pixel
 
-            position = np.array([cXcm, cYcm, 0, 1])[np.newaxis].T
-            coordsBaseFrame = transformation @ position
-
-            x = math.floor(coordsBaseFrame[0] * 10) 
-            y = math.floor(coordsBaseFrame[1] * 10)
+            cYmm = round(ct.y_mm(cY))
+            cXmm = round(ct.x_mm(cX))
+            # cYcm = cY * cm2pixel
+            # cXcm = cX * cm2pixel
+            # position = np.array([cXcm, cYcm, 0, 1])[np.newaxis].T
+            # coordsBaseFrame = transformation @ position
+            # x = math.floor(coordsBaseFrame[0] * 10) 
+            # y = math.floor(coordsBaseFrame[1] * 10)
             # print(pixel)
             cv2.circle(img, center = (cX, cY), radius = 2, color = (0,0,0), lineType = 10)
             colour = cc.get_colour(pixel)
@@ -143,8 +150,8 @@ while True:
 
             cv2.rectangle(img, pt1 = (cX - 40, cY-40), pt2 = (cX + 40, cY +40), color = (52, 235, 164), thickness = 1)
             cv2.putText(img, colour, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (52, 235, 164), 2)
-            cv2.putText(img, str(x), (cX, cY + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (52, 235, 164), 2)
-            cv2.putText(img, str(y), (cX, cY + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (52, 235, 164), 2)
+            cv2.putText(img, str(cXmm), (cX, cY + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (52, 235, 164), 2)
+            cv2.putText(img, str(cYmm), (cX, cY + 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (52, 235, 164), 2)
             cv2.putText(imgContours, colour, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
             # print(img.shape, (cX, cY))
             # imgStack = stackImages(0.8, ([img, imgBlur, imgGray]))
@@ -153,9 +160,9 @@ while True:
             cv2.imshow("blurred", imgContours)
             cv2.imshow("gray", imgDil)
 
-            lego.update(colour, (x,y))
-            # pick_lego(lego)
-            rotrics_track(lego)
+            lego.update(colour, (cXmm,cYmm))
+            pick_lego(lego)
+            # rotrics_track(lego)
             # dexarm.move_to((x,y, 50))
             # dexarm.move_to(())
 

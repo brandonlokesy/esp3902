@@ -66,7 +66,7 @@ class Dexarm:
 
     def move_rail(self, extrude, feedrate = 2000):
         # x,y,z = coords
-        cmd = "G1"+ "E" + str(extrude) + "\r\n"
+        cmd = "G1"+ "F" + str(feedrate) + "E" + str(extrude) + "\r\n"
         self._send_cmd(cmd)
 
     def get_current_position(self):
