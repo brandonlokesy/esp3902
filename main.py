@@ -45,7 +45,8 @@ dexarm.move_rail(0)
 def getContours(img, imgContours):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     # cv2.drawContours(imgContours, contours, -1, (150, 0, 150), 3)
-    return contours
+    sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
+    return (sorted_contours[0],)
 
 
 def pick_lego(lego):
