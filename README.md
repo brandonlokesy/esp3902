@@ -1,7 +1,7 @@
 # ESP3902 Lego Colour Sorter
 
 ## Relevant Files
-*<code>main.py</code> is the computer vision file that performs the image masking and contour detection.
+* <code>main.py</code> is the computer vision file that performs the image masking and contour detection.
 * <code>arduino.py</code> interfaces serial with the Arduino Maker Uno
 * <code>esp3902_motor.ino</code> sets up the the connections between the Arduino Maker Uno and the Motor Shield
 * <code>pydexarm.py</code> Is a file provided by Rotrics. We have modified the input data structure for the input coordinates to a tuple
@@ -14,3 +14,5 @@ Most of the other files here were used for testing purposes. They are not requir
 * <code>contour-threshold.py</code> was used to determine the threshold values to use to detect contours on the input image.
 *<code>colour-testing.py</code> was used to experiment the HSV masking of an input image.
 *<code>calibration.py</code> was used to map pixels on the camera to real-world coordinates.
+
+## Hardware Specifications

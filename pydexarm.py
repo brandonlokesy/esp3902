@@ -88,7 +88,7 @@ class Dexarm:
                     c = float(temp[2])
             if len(str) > 0:
                 if str.find("ok") > -1:
-                    return x,y,z,e,a,b,c
+                    return (x,y,z,e,a,b,c)
 
     """Delay"""
     def delay_ms(self, value):

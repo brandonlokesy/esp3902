@@ -47,6 +47,7 @@ def getContours(img, imgContours):
     # cv2.drawContours(imgContours, contours, -1, (150, 0, 150), 3)
     sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
     return (sorted_contours[0],)
+    #test comment
 
 
 def pick_lego(lego):
