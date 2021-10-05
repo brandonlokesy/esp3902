@@ -87,12 +87,8 @@ for c in contours:
         # cv2.putText(img, str(cYmm), (cX, cY - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (52, 235, 164), 2)
         cv2.putText(imgContours, colour, (cX, cY - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
 
-cv2.circle(imgDil, center = (cX, cY), radius = 5, thickness = -1, color = (255, 255, 255))
-cv2.putText(imgDil, "center", (cX, cY - 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-cv2.putText(imgDil, "Pixels: " + str(cX) + ',' + str(cY), (cX, cY - 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-cv2.imshow('t', imgDil)
 # cv2.imshow('img', img)
-cv2.imwrite('./Images/detect_center.png', imgDil)
+# cv2.imwrite('./Images/detect_center.png', imgDil)
 
 # cv2.imshow('res', imgContours)
 # while True:
