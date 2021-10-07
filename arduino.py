@@ -17,3 +17,10 @@ class Arduino(object):
     def stop_dc(self):
         print("Motor stopping")
         self.ser.write(b'Q')
+
+if __name__ == '__main__':
+    port = ''
+    arduino = Arduino(port)
+    arduino.activate_dc()
+    time.sleep(5)
+    arduino.stop_dc()
