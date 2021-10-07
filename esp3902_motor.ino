@@ -37,8 +37,6 @@ int incomingData
 // The setup routine runs once when you press reset.
 void setup() {
   Serial.begin(9600);
-  motor.setSpeed(200);
-  motor.run(RELEASE);
 }
 
 
@@ -48,11 +46,11 @@ void loop() {
     incomingData = Serial.read();
 
     if (incomingData == 'F'){
-      motor.run(FORWARD);
+      motor1.setSpeed(200);
     }
 
     if (incomingData == 'Q'){
-      motor.run(RELEASE);
+      motor.setSpeed(0);
     }
   }
 }
