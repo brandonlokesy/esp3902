@@ -12,7 +12,7 @@
 ## Other Files
 Most of the other files here were used for testing purposes. They are not required to operate the system
 * <code>contour-threshold.py</code> was used to determine the threshold values to use to detect contours on the input image.
-*<code>colour-testing.py</code> was used to experiment the HSV masking of an input image.
-*<code>calibration.py</code> was used to map pixels on the camera to real-world coordinates.
+* <code>colour-testing.py</code> was used to experiment the HSV masking of an input image.
+* <code>calibration.py</code> was used to map pixels on the camera to real-world coordinates.
 
 ## Hardware Specifications
