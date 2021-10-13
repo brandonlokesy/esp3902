@@ -50,7 +50,7 @@ void loop() {
     }
 
     if (incomingData == 'Q'){
-      motor.setSpeed(0);
+      motor1.setSpeed(0);
     }
   }
 }

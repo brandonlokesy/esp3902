@@ -26,12 +26,12 @@ redHSV = np.array([[0, 125, 165],[13, 255, 255]] )
 greenHSV = np.array([[40, 93, 130], [179, 255, 255]])  
 hsvRange = np.array([[0, 182, 112], [114, 255, 145]])
 
-rotation = np.array([[-1, 0, 0],
-                    [0 ,1, 0],
-                    [0, 0, -1],
-                    [0, 0, 0]])
-displacement = np.array([17.7, 13.5, 0, 1])[np.newaxis].T
-transformation = np.hstack((rotation, displacement))
+# rotation = np.array([[-1, 0, 0],
+#                     [0 ,1, 0],
+#                     [0, 0, -1],
+#                     [0, 0, 0]])
+# displacement = np.array([17.7, 13.5, 0, 1])[np.newaxis].T
+# transformation = np.hstack((rotation, displacement))
 
 # colourLocations = {}
 
