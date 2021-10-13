@@ -30,7 +30,7 @@
 
 
 // Configure the motor driver.
-CytronMD motor(PWM_DIR, 3, 4);  // PWM 1 = Pin 3, DIR 1 = Pin 4.
+CytronMD motor1(PWM_DIR, 3, 4);  // PWM 1 = Pin 3, DIR 1 = Pin 4.
 //CytronMD motor2(PWM_DIR, 9, 10); // PWM 2 = Pin 9, DIR 2 = Pin 10.
 int incomingData;
 
@@ -46,7 +46,7 @@ void loop() {
     incomingData = Serial.read();
 
     if (incomingData == 'F'){
-      motor.setSpeed(200);
+      motor1.setSpeed(200);
     }
 
     if (incomingData == 'Q'){
