@@ -30,6 +30,7 @@ dexarm.go_home()
 # dexarm.move_to((-100, 300, 50))
 # dexarm.move_to(0 , 300 , -122)
 # dexarm.soft_gripper_place()
+dexarm.move_rail(0)
 dexarm.soft_gripper_nature()
 # print(dexarm.get_current_position())
 

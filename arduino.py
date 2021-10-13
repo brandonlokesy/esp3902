@@ -3,7 +3,7 @@ import time
 
 class Arduino(object):
     def __init__(self, port):
-        self.ser = serial.Serial(port, 115200, timeout=None)
+        self.ser = serial.Serial(port, 9600, timeout=None)
         self.is_open = self.ser.isOpen()
         if self.is_open:
             print('arduino: %s open' % self.ser.name)
@@ -19,8 +19,10 @@ class Arduino(object):
         self.ser.write(b'Q')
 
 if __name__ == '__main__':
-    port = ''
+    port = 'COM3'
     arduino = Arduino(port)
-    arduino.activate_dc()
-    time.sleep(5)
-    arduino.stop_dc()
+    while True:
+        arduino.activate_dc()
+        time.sleep(1)
+        arduino.stop_dc()
+        time.sleep(1)
