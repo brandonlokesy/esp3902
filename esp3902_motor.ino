@@ -31,7 +31,7 @@
 
 // Configure the motor driver.
 CytronMD motor1(PWM_DIR, 3, 4);  // PWM 1 = Pin 3, DIR 1 = Pin 4.
-//CytronMD motor2(PWM_DIR, 9, 10); // PWM 2 = Pin 9, DIR 2 = Pin 10.
+CytronMD motor2(PWM_DIR, 11, 12); // PWM 2 = Pin 9, DIR 2 = Pin 10.
 int incomingData;
 
 // The setup routine runs once when you press reset.
@@ -51,6 +51,14 @@ void loop() {
 
     if (incomingData == 'Q'){
       motor1.setSpeed(0);
+    }
+
+    if (incomingData == 'V'){
+      motor2.setSpeed(200);
+    }
+
+    if (incomingData == 'S'){
+      motor2.setSpeed(0);
     }
   }
 }

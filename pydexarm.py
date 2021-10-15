@@ -1,7 +1,6 @@
 import serial
-import re
 from legobrick import Lego
-import threading
+import re
 class Dexarm:
 
     def __init__(self, port):

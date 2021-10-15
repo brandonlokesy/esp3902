@@ -1,16 +1,19 @@
-import cv2
-import numpy as np
-import imutils
-import colourclassification as cc
-from legobrick import Lego
-from pydexarm import Dexarm
-import time
 import math
-import coordinatestransformation as ct
 import sys
 import threading
+import time
 
-hsvRange = np.array([[0, 182, 112], [114, 255, 145]])
+import cv2
+import imutils
+import numpy as np
+
+import colourclassification as cc
+import coordinatestransformation as ct
+from arduino import Arduino
+from legobrick import Lego
+from pydexarm import Dexarm
+
+hsvRange = np.array([[0, 42, 130], [112, 255, 255]])
 
 def getContours(img):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -46,7 +49,7 @@ def captureCamera(num):
 
         contour = getContours(imgDil)
 
-        if cv2.contourArea(contour[0]) > 200:
+        if cv2.contourArea(contour[0]) > 300:
             print('contour detected')
             M = cv2.moments(contour[0])
             cX = int((M["m10"] / M["m00"]))
@@ -106,23 +109,46 @@ def rotrics_track(lego):
 #             lego.deactivate()
 #             pass        
 
+class MotorControl(object):
+    def __init__(self):
+        self.flag = False
+        self.thread = threading.Thread(target = self.update, args = ())
+        self.thread.daemon = True
+        self.thread.start()
+    def update(self):
+        if lego.active == False:
+            arduino.start()
+        elif lego.active == True:
+            arduino.stop()
+
+
 def pick():
     while True:
         rotrics_track(lego)
+        if lego.active == False:
+            arduino.start()
+        elif lego.active == True:
+            arduino.stop()
         if dexarm.get_current_position()[:2] == lego.get_xy():
+            arduino.stop()
             x,y = lego.get_xy()
-            dexarm.fast_move_to((x,y,-34), feedrate = 10000)
+            dexarm.fast_move_to((x,y,-32), feedrate = 10000)
             dexarm.soft_gripper_pick()
-            dexarm.fast_move_to((x,y,0), feedrate = 10000)
-            dexarm.move_rail(extrude = 400, feedrate = 5000)
+            dexarm.fast_move_to((x,y,30), feedrate = 10000)
             # dexarm.move_to(cc.colourBucket(colour))
-            dexarm.fast_move_to((200, 100, 0), feedrate = 5000)
+            place, railpos = cc.colourBucket(lego.get_colour())
+            print('place is', str(place))
+            xplace, yplace, z = place
+            print('x is {x}, y is {y}'.format(x = xplace, y = yplace))
+            dexarm.move_rail(extrude = railpos, feedrate = 5000)
+            dexarm.fast_move_to((xplace, yplace, 0), feedrate = 5000)
             dexarm.soft_gripper_place()
             dexarm.move_rail(extrude = 0, feedrate = 5000)
             # dexarm.go_home()
             dexarm.fast_move_to((0, 200, 30), feedrate = 10000)
             # dexarm.soft_gripper_nature()
             lego.deactivate()
+            dexarm.soft_gripper_nature()
             pass        
 
 class VideoStreamWidget(object):
@@ -154,6 +180,8 @@ class VideoStreamWidget(object):
                 imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
                 imgDil = cv2.dilate(imgCanny, np.ones((5,5)), iterations = 1)
                 contours = getContours(imgDil)
+                if not contours:
+                    lego.deactivate()
                 for contour in contours:
                     if cv2.contourArea(contour) > 200:
                         print('contour detected')
@@ -182,15 +210,18 @@ class VideoStreamWidget(object):
 if __name__ == '__main__':
     lego = Lego()
     dexarm = Dexarm('COM4')
+    arduino = Arduino('COM5')
     dexarm.go_home()
     dexarm.sliding_rail_init()
     dexarm.move_rail(0)
+    dexarm.soft_gripper_nature()
     # num = 0
     # cap = cv2.VideoCapture(num)
     # cap.set(3, 1920)
     # cap.set(4, 1080)
     # cm2pixel = 30.6/480
     vid = VideoStreamWidget()
+    control = MotorControl()
     time.sleep(1)
     while True:
         # ret, img = cap.read()
@@ -200,11 +231,7 @@ if __name__ == '__main__':
         #     break
         try:
             vid.show_frame()
-            # t0 = threading.Thread(target = captureCamera, args = (0,))
-            # t1 = threading.Thread(target = pick)
-            # t1.daemon = True
-            # # t0.start()
-            # t1.start()
+            control.update()
             pick()
         except(KeyboardInterrupt, SystemExit):
             print("Received keyboard interrupt\n")

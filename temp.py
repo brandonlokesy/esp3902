@@ -33,7 +33,7 @@ def getContours(img, imgContours):
     # cv2.drawContours(imgContours, contours, -1, (150, 0, 150), 3)
     return contours
 
-img = cv2.imread('./Images/bluelego.jpg')
+img = cv2.imread('./Images/legoref.jpg')
 img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 hsvRange = np.array([[85, 162, 0], [179, 255, 255]])

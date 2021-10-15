@@ -15,7 +15,7 @@ https://brickipedia.fandom.com/wiki/Medium_Blue'''
 legoColoursHEX = {
     "brightRed" : "#DE000D", 
     "brightBlue" : "#0057A8", 
-    "darkGreen" : "#007B28",
+    # "darkGreen" : "#007B28",
     # "mediumBlue" : "#478CC6",
     "brightYellow" : "#FEC400"
     #"lightPurple" : "#E4ADC8",
@@ -26,9 +26,11 @@ legoColoursHEX = {
     # "mediumAzure" : "#36AEBF"
                     }
 
-colourLocations = {"brightRed" : (100, 100, 100),
-                    "brightBlue" : (200, 200, 100),
-                    "darkGreen" : (300, 300, 100)}
+
+# val is (coords, rail pos)
+colourLocations = {"brightRed" : ((-330, 50, 0), 0),
+                    "brightBlue" : ((-330, 0, 0), 0),
+                    "brightYellow" : ((-200, 0, 0), 0)}
 
 # legoColoursRGB = dict((k, ImageColor.getcolor(v, "RGB"))for k,v in legoColoursHEX.items())
 legoColoursBGR = dict((k, ImageColor.getcolor(v, "RGB")[::-1])for k,v in legoColoursHEX.items())
@@ -48,4 +50,4 @@ def get_colour(inputBGR):
     return df.iloc[dist.argmin()].colour
 
 def colourBucket(colour):
-    return colourLocations['colour']
+    return colourLocations[colour]
