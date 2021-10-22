@@ -4,9 +4,10 @@ import numpy as np
 framewidth = 640
 frameheight = 480
 
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 cap.set(3, framewidth)
 cap.set(4, frameheight)
+hsvRange = np.array([[0, 91, 62], [107, 255, 255]])
 
 def empty(a):
     #comment
@@ -14,8 +15,8 @@ def empty(a):
 
 cv2.namedWindow("Parameters")
 cv2.resizeWindow("Parameters", framewidth, frameheight)
-cv2.createTrackbar("Threshold1", "Parameters", 55, 255, empty)
-cv2.createTrackbar("Threshold2", "Parameters", 131, 255, empty)
+cv2.createTrackbar("Threshold1", "Parameters", 97, 255, empty)
+cv2.createTrackbar("Threshold2", "Parameters", 255, 255, empty)
 
 def getContours(img, imgContours):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
@@ -25,9 +26,15 @@ def getContours(img, imgContours):
 while True:
     ret, img = cap.read()
     imgContours = img.copy()
-    imgBlur = cv2.GaussianBlur(img, (7,7), 1)
-    imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
 
+    frameHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    mask = cv2.inRange(frameHSV, hsvRange[0], hsvRange[1])
+    result = cv2.bitwise_and(frameHSV, frameHSV, mask = mask)
+
+    imgBlur = cv2.GaussianBlur(frameHSV, (7,7), 1)
+    imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
+    
     threshold1 = cv2.getTrackbarPos("Threshold1", "Parameters")
     threshold2 = cv2.getTrackbarPos("Threshold2", "Parameters")
 

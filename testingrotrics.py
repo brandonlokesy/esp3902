@@ -24,12 +24,23 @@ print('initialised')
 # dexarm.move_to(-50, 300, -50)
 # dexarm.air_picker_place()
 # 
-# dexarm.go_home()
+dexarm.go_home()
 # dexarm.move_to((100, 300, 50), feedrate = 5000)
-# dexarm.fast_move_to((100, 300, 50), feedrate = 10000)
-dexarm.move_to((7, 308, 0))
+# print('this is the initial position')
+# print(dexarm.get_current_position())
+# dexarm.fast_move_to((-350, 200, 50), feedrate = 10000)
+
+# while dexarm.get_current_position()[:3] != (100, 300, 50):
+#     print('dexarm in motion')
+#     print(dexarm.get_current_position())
+
+# print(dexarm.get_current_position())
+
+# dexarm.move_to((-200, 0, 50), feedrate = 100000)
+
 # dexarm.move_rail(0)
-# dexarm.move_to((-200 , 0 , 0))
+# dexarm.move_to((-114, 313 , 0))
+# print(dexarm.get_current_position())
 # dexarm.soft_gripper_place()
 # dexarm.move_rail(0)
 dexarm.soft_gripper_nature()

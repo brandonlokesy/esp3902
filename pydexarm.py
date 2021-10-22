@@ -54,7 +54,7 @@ class Dexarm:
 
     def move_to(self, coords, feedrate=2000):
         x,y,z = coords
-        cmd = "G1"+"F" + str(feedrate) + "X"+str(x) + "Y" + str(y) + "Z" + str(z) + "\r\n"
+        cmd = "G0"+"F" + str(feedrate) + "X"+str(x) + "Y" + str(y) + "Z" + str(z) + "\r\n"
         print(f'Rotrics moving to x = {x}, y = {y}, z = {z}')
         self._send_cmd(cmd)
 

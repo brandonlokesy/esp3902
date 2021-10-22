@@ -28,9 +28,9 @@ legoColoursHEX = {
 
 
 # val is (coords, rail pos)
-colourLocations = {"brightRed" : ((-330, 50, 0), 0),
-                    "brightBlue" : ((-330, 0, 0), 0),
-                    "brightYellow" : ((-200, 0, 0), 0)}
+colourLocations = {"brightRed" : ((-350, 200, 50), 0),
+                    "brightBlue" : ((-330, 100, 50), 0),
+                    "brightYellow" : ((-200, 0, 50), 0)}
 
 # legoColoursRGB = dict((k, ImageColor.getcolor(v, "RGB"))for k,v in legoColoursHEX.items())
 legoColoursBGR = dict((k, ImageColor.getcolor(v, "RGB")[::-1])for k,v in legoColoursHEX.items())
