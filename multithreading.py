@@ -148,8 +148,6 @@ def pick():
         time.sleep(1)
         dexarm.delay_ms(100)
         xpos, ypos = lego.get_xy()
-        # xrange = np.array([xpos - error, xpos + error])
-        # yrange =
         xrobot, yrobot = dexarm.get_current_position()[:2]
         # print(xrobot, yrobot)
         if (xpos - error < xrobot < xpos + error) and (ypos - error < yrobot < ypos + error):
@@ -207,14 +205,17 @@ class VideoStreamWidget(object):
                 # if not contours:
                 #     lego.deactivate()
                 # for contour in contours:
+                mask = np.zeros(self.img.shape, np.uint8)
                 if cv2.contourArea(contours[0]) > 200:
-                    print('contour detected')
+                    cv2.drawContours(mask, contours[0], -1, 255, -1)
+                    # hsvmean = 
+                    # print('contour detected')
                     M = cv2.moments(contours[0])
                     cX = int((M["m10"] / M["m00"]))
                     cY = int((M["m01"] / M["m00"]))
 
                     pixel = self.img[cY, cX, :]
-                    print(cX, cY)
+                    # print(cX, cY)
                     cYmm = round(ct.y_mm(cY))
                     cXmm = round(ct.x_mm(cX))
                     colour = cc.get_colour(pixel)
@@ -235,6 +236,7 @@ if __name__ == '__main__':
     lego = Lego()
     dexarm = Dexarm('COM4')
     error = 10
+    pixeltol = 30
     # arduino = Arduino('COM5')
     dexarm.go_home()
     lego.active = False

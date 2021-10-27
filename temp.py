@@ -1,8 +1,11 @@
+from types import resolve_bases
 import cv2
 import numpy as np
 import coordinatestransformation as ct
 import colourclassification as cc
+# hsvRange = np.array([[0, 97, 96], [111, 255, 209]])
 hsvRange = np.array([[0, 91, 62], [107, 255, 255]])
+
 
 framewidth = 1920
 frameheight = 1080
@@ -12,23 +15,33 @@ cap = cv2.VideoCapture(0)
 cap.set(3, framewidth)
 cap.set(4, frameheight)
 
-fgbg = cv2.createBackgroundSubtractorMOG2(history = 1000000)
+# fgbg = cv2.createBackgroundSubtractorMOG2(history = 1000000)
 
 def getContours(img):
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     # cv2.drawContours(imgContours, contours, -1, (150, 0, 150), 3)
     sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
     return sorted_contours
+
+ref = cv2.imread('./Images/staticref.jpg')
+
 while True:
     if cap.isOpened():
         status, img = cap.read()
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-        fgmask = fgbg.apply(img, learningRate = -1)
+        diff = cv2.absdiff(img, ref)
+        th, dst = cv2.threshold(diff, 50, 255, cv2.THRESH_BINARY)
+        dst = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
+        con, hie = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(dst, con, -1,(255,255,255),3)
+        res = cv2.bitwise_and(img, img, mask = dst)
+        cv2.imshow('dest', res)
 
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(hsv, hsvRange[0], hsvRange[1])
-        out = cv2.bitwise_and(hsv, hsv, mask = mask)
+        out = cv2.bitwise_and(img, img, mask = mask)
 
         imgContours = out.copy()
         imgBlur = cv2.GaussianBlur(out, (7,7), 1)
@@ -44,26 +57,30 @@ while True:
         #     lego.deactivate()
         # for contour in contours:
         mask1 = np.zeros(img.shape[:2], np.uint8)
-        if cv2.contourArea(contours[0]) > 200:
-            cv2.drawContours(mask1, contours[0], -1, 255, -1)
-            hsvmean = cv2.mean(hsv, mask1)[:3]
-            print('contour detected')
-            M = cv2.moments(contours[0])
-            cX = int((M["m10"] / M["m00"]))
-            cY = int((M["m01"] / M["m00"]))
-            # cv2.imshow('hsv', hsv)
-            # cv2.imshow('res', mask1)
-            cv2.imshow('img', img)
-            cv2.imshow('masked', fgmask)
-            pixel = img[cY, cX, :]
-            print(cX, cY)
-            cYmm = round(ct.y_mm(cY))
-            cXmm = round(ct.x_mm(cX))
-            colour = cc.get_colour(pixel)
-            print('hsv mean is {hsv}'.format(hsv = hsvmean))
-                    # lego.update(colour, (cXmm,cYmm))
-                    # print('lego is at' + str(lego.get_xy()))
-                    # time.sleep(0.01)
+        for c in contours:
+            if cv2.contourArea(c) > 200:
+                cv2.drawContours(mask1, c, -1, 255, -1)
+                M = cv2.moments(c)
+                cX = int((M["m10"] / M["m00"]))
+                cY = int((M["m01"] / M["m00"]))
+                # cv2.imshow('hsv', hsv)
+                # cv2.imshow('res', mask1)
+                pixel = img[cY, cX, :]
+                # print(cX, cY)
+                colour = cc.get_colour_knn(pixel)
+
+                cv2.rectangle(img, pt1 = (cX - 40, cY-40), pt2 = (cX + 40, cY +40), color = (52, 235, 164), thickness = 1)
+                cv2.putText(img, colour, (cX, cY), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (52, 235, 164), 2)
+                
+                cYmm = round(ct.y_mm(cY))
+                cXmm = round(ct.x_mm(cX))
+
+        cv2.imshow('img', img)
+        cv2.imshow('hsv', out)
+                # print('hsv mean is {hsv}'.format(hsv = hsvmean))
+                        # lego.update(colour, (cXmm,cYmm))
+                        # print('lego is at' + str(lego.get_xy()))
+                        # time.sleep(0.01)
         if cv2.waitKey(30) & 0xFF == ord('q'):
             break
 # # cap = cv2.VideoCapture(0)
