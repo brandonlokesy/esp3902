@@ -13,12 +13,19 @@ from arduino import Arduino
 from legobrick import Lego
 from pydexarm import Dexarm
 
-hsvRange = np.array([[0, 91, 62], [107, 255, 255]])
+# hsvRange = np.array([[0, 91, 62], [107, 255, 255]])
+hsvRange = np.array([[0, 98, 100], [109, 255, 255]])
 
 def getContours(img):
+    def get_contour_precedence(contour, cols):
+        tolerance_factor = 10
+        origin = cv2.boundingRect(contour)
+        return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
     contours, hierarchy = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     # cv2.drawContours(imgContours, contours, -1, (150, 0, 150), 3)
-    sorted_contours= sorted(contours, key=cv2.contourArea, reverse= True)
+    # sorted_contours = sorted(contours, key=cv2.contourArea, reverse= True)
+    sorted_contours = sorted(contours, key = lambda x:get_contour_precedence(x, img.shape[1]))
+    # sorted_contours = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[1])
     return sorted_contours
 
 # def captureCamera(num):
@@ -133,45 +140,47 @@ def pick():
     while True:
         # rotrics_track()
         if lego.active == False:
+            arduino.operate()
             print("Nothing to track")
         else:
+            arduino.stop()
             x,y = lego.get_xy()
             print('tracking')
             # time.sleep(1)
             print("Rotrics moving to {x}, {y}".format(x=x,y=y))
             dexarm.move_to((x,y, 30), feedrate = 100000)
-        # print('testing coordinates')
-        # if lego.active == False:
-        #     arduino.start()
-        # elif lego.active == True:
-        #     arduino.stop()
-        time.sleep(1)
-        dexarm.delay_ms(100)
-        xpos, ypos = lego.get_xy()
-        xrobot, yrobot = dexarm.get_current_position()[:2]
-        # print(xrobot, yrobot)
-        if (xpos - error < xrobot < xpos + error) and (ypos - error < yrobot < ypos + error):
-        # if dexarm.get_current_position()[:2] == pos:
-            # arduino.stop()
-            x,y = lego.get_xy()
-            dexarm.move_to((x,y,-32), feedrate = 100000)
-            dexarm.soft_gripper_pick()
-            dexarm.move_to((x,y,50), feedrate = 100000)
-            # dexarm.move_to(cc.colourBucket(colour))
-            place, railpos = cc.colourBucket(lego.get_colour())
-            print('place is', str(place))
-            xplace, yplace, z = place
-            print('x is {x}, y is {y}'.format(x = xplace, y = yplace))
-            dexarm.move_rail(extrude = railpos, feedrate = 100000)
-            dexarm.move_to((xplace, yplace, 50), feedrate = 100000)
-            dexarm.soft_gripper_place()
-            # dexarm.move_rail(extrude = 0, feedrate = 100000)
-            # dexarm.go_home()
-            dexarm.move_to((0, 200, 30), feedrate = 100000)
-            # dexarm.soft_gripper_nature()
-            lego.deactivate()
-            # dexarm.soft_gripper_nature()
-            # break
+            # print('testing coordinates')
+            # if lego.active == False:
+            #     arduino.start()
+            # elif lego.active == True:
+            #     arduino.stop()
+            time.sleep(1)
+            dexarm.delay_ms(100)
+            xpos, ypos = lego.get_xy()
+            xrobot, yrobot = dexarm.get_current_position()[:2]
+            # print(xrobot, yrobot)
+            if (xpos - error < xrobot < xpos + error) and (ypos - error < yrobot < ypos + error):
+            # if dexarm.get_current_position()[:2] == pos:
+                # arduino.stop()
+                x,y = lego.get_xy()
+                dexarm.move_to((x,y,-32), feedrate = 100000)
+                dexarm.soft_gripper_pick()
+                dexarm.move_to((x,y,50), feedrate = 100000)
+                # dexarm.move_to(cc.colourBucket(colour))
+                place, railpos = cc.colourBucket(lego.get_colour())
+                print('place is', str(place))
+                xplace, yplace, z = place
+                print('x is {x}, y is {y}'.format(x = xplace, y = yplace))
+                dexarm.move_rail(extrude = railpos, feedrate = 100000)
+                dexarm.move_to((xplace, yplace, 50), feedrate = 100000)
+                dexarm.soft_gripper_place()
+                # dexarm.move_rail(extrude = 0, feedrate = 100000)
+                # dexarm.go_home()
+                dexarm.move_to((0, 200, 30), feedrate = 100000)
+                # dexarm.soft_gripper_nature()
+                lego.deactivate()
+                # dexarm.soft_gripper_nature()
+                # break
 
 class VideoStreamWidget(object):
     def __init__(self, src = 0):
@@ -186,8 +195,14 @@ class VideoStreamWidget(object):
         while True:
             if self.capture.isOpened():
                 (self.status, self.img) = self.capture.read()
-
-                hsv = cv2.cvtColor(self.img, cv2.COLOR_BGR2HSV)
+                # print('img shape is', str(self.img.shape))
+                diff = cv2.absdiff(self.img, ref)
+                th, dst = cv2.threshold(diff, 50, 255, cv2.THRESH_BINARY)
+                dst = cv2.cvtColor(dst, cv2.COLOR_BGR2GRAY)
+                con, hie = cv2.findContours(dst, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                cv2.drawContours(dst, con, -1,(255,255,255),3)
+                res = cv2.bitwise_and(self.img, self.img, mask = dst)
+                hsv = cv2.cvtColor(res, cv2.COLOR_BGR2HSV)
 
                 mask = cv2.inRange(hsv, hsvRange[0], hsvRange[1])
                 out = cv2.bitwise_and(hsv, hsv, mask = mask)
@@ -206,7 +221,9 @@ class VideoStreamWidget(object):
                 #     lego.deactivate()
                 # for contour in contours:
                 mask = np.zeros(self.img.shape, np.uint8)
-                if cv2.contourArea(contours[0]) > 200:
+                if not contours:
+                    lego.deactivate()
+                elif contours and cv2.contourArea(contours[0]) > 200:
                     cv2.drawContours(mask, contours[0], -1, 255, -1)
                     # hsvmean = 
                     # print('contour detected')
@@ -233,11 +250,12 @@ class VideoStreamWidget(object):
             exit(1)
 
 if __name__ == '__main__':
+    ref = cv2.imread('./Images/staticref.jpg')
     lego = Lego()
     dexarm = Dexarm('COM4')
-    error = 10
+    error = 15
     pixeltol = 30
-    # arduino = Arduino('COM5')
+    arduino = Arduino('COM6')
     dexarm.go_home()
     lego.active = False
     # dexarm.sliding_rail_init()
