@@ -40,7 +40,7 @@ df = pd.DataFrame([[k,v] for k,v in legoColoursBGR.items()], columns = ['colour'
 bgrArray = np.array([np.array(v) for v in legoColoursBGR.values()])
 
 # df2 = pd.read_csv('./Color Data/colordata.csv')
-df2 = pd.read_csv('./Colour Data/colourdataNoGreen.csv')
+df2 = pd.read_csv('./Colour Data/colourdatasvmNoGreen.csv')
 
 X = df2[['r','g','b']]
 Y = df2[['Label']].values.ravel()

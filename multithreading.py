@@ -1,10 +1,8 @@
-import math
 import sys
 import threading
 import time
 
 import cv2
-import imutils
 import numpy as np
 
 import colourclassification as cc
@@ -13,9 +11,7 @@ from arduino import Arduino
 from legobrick import Lego
 from pydexarm import Dexarm
 
-# hsvRange = np.array([[0, 91, 62], [107, 255, 255]])
-hsvRange = np.array([[0, 98, 100], [109, 255, 255]])
-
+hsvRange = np.array([[0, 91, 62], [107, 255, 255]])
 def getContours(img):
     def get_contour_precedence(contour, cols):
         tolerance_factor = 10
@@ -28,7 +24,7 @@ def getContours(img):
 
 def rotrics_track():
     if lego.active == False:
-        # print("Nothing to track")
+        print("Nothing to track")
         pass
     else:
         x,y = lego.get_xy()
@@ -40,13 +36,14 @@ def pick():
     while True:
         if lego.active == False:
             arduino.operate()
-            # print("Nothing to track")
+            print("Nothing to track")
         else:
             arduino.stop()
             x,y = lego.get_xy()
             print('tracking')
             print("Rotrics moving to {x}, {y}".format(x=x,y=y))
             dexarm.move_to((x,y, 30), feedrate = 100000)
+
             time.sleep(1)
             dexarm.delay_ms(100)
             xpos, ypos = lego.get_xy()
@@ -91,20 +88,22 @@ class VideoStreamWidget(object):
                 out = cv2.bitwise_and(hsv, hsv, mask = mask)
 
                 imgContours = out.copy()
-                imgBlur = cv2.GaussianBlur(out, (3,3), 1)
+                imgBlur = cv2.GaussianBlur(out, (7,7), 1)
                 imgGray = cv2.cvtColor(imgBlur, cv2.COLOR_BGR2GRAY)
 
                 threshold1 = 97
                 threshold2 = 255
 
                 imgCanny = cv2.Canny(imgGray, threshold1, threshold2)
-                imgDil = cv2.dilate(imgCanny, np.ones((3,3)), iterations = 1)
+                imgDil = cv2.dilate(imgCanny, np.ones((5,5)), iterations = 1)
                 contours = getContours(imgDil)
+
                 mask = np.zeros(self.img.shape, np.uint8)
                 if not contours:
                     lego.deactivate()
                 elif contours and cv2.contourArea(contours[0]) > 200:
                     cv2.drawContours(mask, contours[0], -1, 255, -1)
+
                     M = cv2.moments(contours[0])
                     cX = int((M["m10"] / M["m00"]))
                     cY = int((M["m01"] / M["m00"]))
@@ -132,11 +131,14 @@ if __name__ == '__main__':
     dexarm = Dexarm('COM4')
     error = 15
     pixeltol = 30
-    arduino = Arduino('COM5')
+    arduino = Arduino('COM6')
     dexarm.go_home()
     lego.active = False
+
     dexarm.soft_gripper_place()
+
     vid = VideoStreamWidget()
+
     time.sleep(1)
     while True:
         try:
