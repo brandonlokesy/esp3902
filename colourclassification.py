@@ -7,8 +7,10 @@ from PIL import ImageColor
 # from scipy.spatial.distance import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
 # from collections import OrderedDict 
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
+# from sklearn.neighbors import KNeighborsClassifier
+# from sklearn.preprocessing import StandardScaler
+# from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import LinearSVC
 
 '''
 Lego Colours are taken from here:
@@ -33,35 +35,37 @@ colourLocations = {"brightRed" : ((-350, 200, 50), 0),
                     "brightBlue" : ((-330, 100, 50), 0),
                     "brightYellow" : ((-200, 0, 50), 0)}
 
-# legoColoursRGB = dict((k, ImageColor.getcolor(v, "RGB"))for k,v in legoColoursHEX.items())
 legoColoursBGR = dict((k, ImageColor.getcolor(v, "RGB")[::-1])for k,v in legoColoursHEX.items())
 df = pd.DataFrame([[k,v] for k,v in legoColoursBGR.items()], columns = ['colour','BGR'])
 bgrArray = np.array([np.array(v) for v in legoColoursBGR.values()])
 
-# inputHEX = '#50bafe'
-# inputBGR = ImageColor.getcolor(inputHEX, "RGB")[::-1]
-
-# dist = euclidean_distances(bgrArray, np.array([inputBGR]))
-# idx = dist.argmin()
-# print(f"the colour is {df.iloc[idx]['colour']}")
-
 # df2 = pd.read_csv('./Color Data/colordata.csv')
-df2 = pd.read_csv('./Colour Data/colourdata.csv')
-df2[['r','g','b']]
-KNN = KNeighborsClassifier(n_neighbors=2)
-# scaler = StandardScaler()
+df2 = pd.read_csv('./Colour Data/colourdataNoGreen.csv')
+
 X = df2[['r','g','b']]
-y = df2[['Label']].values.ravel()
-KNN.fit(X,y)
+Y = df2[['Label']].values.ravel()
+
+rmean = X['r'].values.mean()
+gmean = X['g'].values.mean()
+bmean = X['b'].values.mean()
+xnorm = X.copy()
+xnorm['r'] = xnorm['r'] / rmean
+xnorm['g'] = xnorm['g'] / gmean
+xnorm['b'] = xnorm['b'] / bmean
+
+clf = LinearSVC()
+clf.fit(xnorm, Y)
 
 def get_colour(inputBGR):
     dist = euclidean_distances(bgrArray, np.array([inputBGR]))
-    # print(df.iloc[dist.argmin()].colour)
     return df.iloc[dist.argmin()].colour
 
-def get_colour_knn(inputBGR):
-    rgb = np.array([inputBGR[::-1]])
-    return KNN.predict(rgb)[0]
+def get_colour_svm(inputBGR):
+    rgb = inputBGR[::-1]
+    rgb[0] = rgb[0] / rmean
+    rgb[1] = rgb[1] / gmean
+    rgb[2] = rgb[2] / bmean
+    return clf.predict([rgb])[0]
 
 def colourBucket(colour):
     return colourLocations[colour]

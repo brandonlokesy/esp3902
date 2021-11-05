@@ -18,6 +18,19 @@ class Arduino(object):
         print("Motor stopping")
         self.ser.write(b'Q')
     
+    def feed_bricks(self):
+        self.ser.write(b'G')
+    
+    def stop_feed(self):
+        self.ser.write(b'T')
+
+    def on(self):
+        while True:
+            self.activate_dc()
+            time.sleep(0.5)
+            self.stop_dc()
+            time.sleep(1.5)
+
     def activate_vibration(self):
         print("Vibration motors activating")
         self.ser.write(b'V')
@@ -34,17 +47,18 @@ class Arduino(object):
         self.stop_dc()
         self.deactivate_vibration()
 
+    def operate(self):
+        self.ser.write(b'W')
+        print('dc running')
+
 if __name__ == '__main__':
-    port = 'COM5'
+    port = 'COM7'
     arduino = Arduino(port)
-    time.sleep(1)
-    # arduino.start()
+    time.sleep(3)
+    # while True:
     while True:
-        # arduino.activate_dc()
+        arduino.operate()
         # arduino.activate_vibration()
-        arduino.start()
-        time.sleep(1)
-        # arduino.stop_dc()
-        # arduino.deactivate_vibration()
-        arduino.stop()
-        time.sleep(1)
+    # time.sleep(10)
+    # arduino.deactivate_vibration()
+    # time.sleep(1)
